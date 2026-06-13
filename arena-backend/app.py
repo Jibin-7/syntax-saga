@@ -14,7 +14,7 @@ app = Flask(__name__)
 CORS(app) # Enables React frontend to communicate with Flask
 
 # Connect to local MongoDB instance
-client = MongoClient('mongodb://localhost:27017/') 
+client = MongoClient('mongodb+srv://jibinsjv:hello123@cluster.pmjk4nz.mongodb.net/?appName=Cluster') 
 db = client['buildathon_db']
 challenges_collection = db['challenges']
 users_collection = db['users']
@@ -47,18 +47,25 @@ def register():
 
 @app.route('/api/login', methods=['POST'])
 def login():
-    data = request.json
-    user = users_collection.find_one({"username": data.get('username')})
-    
-    if user and check_password_hash(user['password'], data.get('password')):
-        return jsonify({
-            "username": user['username'], 
-            "xp": user.get('xp', 0), 
-            "solved_questions": user.get('solved_questions', [])
-        })
+    try:
+        data = request.json
+        if not data: return jsonify({"error": "No JSON payload"}), 400
         
-    return jsonify({"error": "Invalid authentication credentials"}), 401
-
+        user = users_collection.find_one({"username": data.get('username')})
+        if not user:
+            return jsonify({"error": "User not found"}), 401
+            
+        if check_password_hash(user['password'], data.get('password')):
+            return jsonify({
+                "username": user['username'], 
+                "xp": user.get('xp', 0),
+                "solved_questions": user.get('solved_questions', [])
+            })
+        return jsonify({"error": "Invalid password"}), 401
+    except Exception as e:
+        # IMPORTANT: This will print the exact error to your Render Logs
+        print(f"DEBUG_ERROR: {str(e)}") 
+        return jsonify({"error": f"Internal Server Error: {str(e)}"}), 500
 # ---------------------------------------------------------
 # 3. ARENA DATA ROUTES
 # ---------------------------------------------------------
