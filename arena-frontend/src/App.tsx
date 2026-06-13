@@ -5,6 +5,8 @@ import axios from 'axios';
 import Confetti from 'react-confetti';
 import './App.css';
 
+const API_URL = 'https://devlynix-arena.onrender.com';
+
 function App() {
   // --- USER SESSION STATE ---
   const [currentUser, setCurrentUser] = useState<string | null>(null);
@@ -38,7 +40,7 @@ function App() {
     setAuthError('');
     try {
       const endpoint = isLoginMode ? '/api/login' : '/api/register';
-      const res = await axios.post(`http://localhost:5000${endpoint}`, authForm);
+      const res = await axios.post(`${API_URL}/api/${isLoginMode ? 'login' : 'register'}`, authForm);
       setCurrentUser(res.data.username);
       setTotalXP(res.data.xp);
       setSolvedQuestions(res.data.solved_questions || []);
@@ -59,7 +61,7 @@ function App() {
   const loadDifficulty = async (diff: string) => {
     setSelectedDifficulty(diff);
     try {
-      const res = await axios.get(`http://localhost:5000/api/questions/${diff}`);
+      const res = await axios.get(`${API_URL}/api/questions/${diff}`);
       setQuestionList(res.data);
       setView('q_list');
     } catch (error) {
@@ -69,7 +71,7 @@ function App() {
 
   const loadQuestion = async (qId: number) => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/challenge/${qId}`);
+      const res = await axios.get(`${API_URL}/api/challenge/${qId}`);
       setActiveChallenge(res.data);
       setLanguage('python'); 
       setCode(res.data.starter_code['python']); 
@@ -84,11 +86,7 @@ function App() {
     setLoading(true); 
     setOutput('Initiating secure container... Compiling and executing matrix...');
     try {
-      const res = await axios.post('http://localhost:5000/execute', { 
-        code, 
-        language, 
-        test_logic: activeChallenge.test_logic[language] 
-      });
+      const res = await axios.post(`${API_URL}/execute`, { code, language, test_logic: activeChallenge.test_logic[language] });
       
       setOutput(res.data.result);
       
