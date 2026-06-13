@@ -39,8 +39,10 @@ function App() {
     e.preventDefault();
     setAuthError('');
     try {
+      // We use the endpoint variable here to keep the URL clean
       const endpoint = isLoginMode ? '/api/login' : '/api/register';
-      const res = await axios.post(`${API_URL}/api/${isLoginMode ? 'login' : 'register'}`, authForm);
+      const res = await axios.post(`${API_URL}${endpoint}`, authForm);
+      
       setCurrentUser(res.data.username);
       setTotalXP(res.data.xp);
       setSolvedQuestions(res.data.solved_questions || []);
