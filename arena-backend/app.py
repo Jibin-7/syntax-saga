@@ -253,6 +253,13 @@ def execute_code():
             "is_success": False,
         })
 
+    if language == 'java':
+        # Find the last closing brace in the user's code and strip it out
+        # so the test_logic can safely inject itself inside the Main class.
+        last_brace_index = code.rfind('}')
+        if last_brace_index != -1:
+            code = code[:last_brace_index] + code[last_brace_index+1:]
+
     full_code = user_code + "\n" + test_logic
 
     if len(full_code.encode('utf-8')) > CODE_MAX_BYTES:
